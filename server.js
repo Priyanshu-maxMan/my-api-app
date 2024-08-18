@@ -1,29 +1,27 @@
-const express = require('express');
-const axios = require('axios');
-const path = require('path');
+const http = require('https');
 
-const app = express();
-const port = process.env.PORT || 3000;
+const options = {
+	method: 'GET',
+	hostname: 'hianime.p.rapidapi.com',
+	port: null,
+	path: '/anime/episode-srcs?id=steinsgate-3%3Fep%3D230&server=vidstreaming&category=dub',
+	headers: {
+		'x-rapidapi-key': '1c1438c1d9msh979fa7f217b0005p186e0fjsn5902434cfcb1',
+		'x-rapidapi-host': 'hianime.p.rapidapi.com'
+	}
+};
 
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
+const req = http.request(options, function (res) {
+	const chunks = [];
 
-// Define the API endpoint
-app.get('/api/fetchData', async (req, res) => {
-    try {
-        const url = 'https://hianime.p.rapidapi.com/anime/servers?episodeId=12345';
-        const response = await axios.get(url, {
-            headers: {
-                'x-rapidapi-key': '1c1438c1d9msh979fa7f217b0005p186e0fjsn5902434cfcb1',
-                'x-rapidapi-host': 'hianime.p.rapidapi.com',
-            },
-        });
-        res.json(response.data);
-    } catch (error) {
-        res.status(500).send('Error fetching data');
-    }
+	res.on('data', function (chunk) {
+		chunks.push(chunk);
+	});
+
+	res.on('end', function () {
+		const body = Buffer.concat(chunks);
+		console.log(body.toString());
+	});
 });
 
-app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
-});
+req.end();
